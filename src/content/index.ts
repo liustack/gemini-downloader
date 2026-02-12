@@ -6,10 +6,9 @@ import type { ImageInfo } from '../types';
 
 console.log('[Gemini Batch Downloader] Content script injected');
 
-const SIZE_SUFFIX_PATTERN = /=s\d+(?:-[a-z0-9-]+)?(?=($|[?#]))/i;
-const GOOGLE_OPTION_SUFFIX_PATTERN = /=([a-z0-9-]+)(?=($|[?#]))/i;
+const SIZE_SUFFIX_PATTERN = /=s\d+(?=[-?#]|$)/i;
 const GOOGLE_USER_CONTENT_PATTERN = /googleusercontent\.com/i;
-const GEMINI_PATH_PATTERN = /\/(gg-dl|aip-dl)\//i;
+const GEMINI_PATH_PATTERN = /\/(rd-gg(?:-dl)?|gg-dl|aip-dl)\//i;
 const MIN_IMAGE_EDGE = 120;
 const DOWNLOAD_BUTTON_LABELS = [
     'Download full size image',
@@ -65,16 +64,24 @@ let refreshScheduled = false;
 let renderScheduled = false;
 
 function rewriteSizeToken(url: string, target: string): string {
-    if (!SIZE_SUFFIX_PATTERN.test(url)) {
-        if (
-            GOOGLE_USER_CONTENT_PATTERN.test(url) &&
-            GOOGLE_OPTION_SUFFIX_PATTERN.test(url)
-        ) {
-            return url.replace(GOOGLE_OPTION_SUFFIX_PATTERN, target);
-        }
+    if (SIZE_SUFFIX_PATTERN.test(url)) {
+        return url.replace(SIZE_SUFFIX_PATTERN, target);
+    }
+
+    if (!GOOGLE_USER_CONTENT_PATTERN.test(url)) {
         return url;
     }
-    return url.replace(SIZE_SUFFIX_PATTERN, target);
+
+    // 兜底：Gemini 资源无 size token 时直接追加 =s0
+    if (GEMINI_PATH_PATTERN.test(url)) {
+        const queryOrHashIndex = url.search(/[?#]/);
+        if (queryOrHashIndex === -1) {
+            return `${url}${target}`;
+        }
+        return `${url.slice(0, queryOrHashIndex)}${target}${url.slice(queryOrHashIndex)}`;
+    }
+
+    return url;
 }
 
 function toFullSizeUrl(url: string): string {
@@ -117,10 +124,6 @@ function isLikelyGeminiImage(img: HTMLImageElement, url: string): boolean {
 
     if (hasNearbyDownloadButton(img)) {
         return true;
-    }
-
-    if (!GOOGLE_OPTION_SUFFIX_PATTERN.test(url)) {
-        return false;
     }
 
     return getVisualEdge(img) >= MIN_IMAGE_EDGE;
