@@ -1,8 +1,9 @@
 import type { ImageInfo } from '../types';
+import { removeWatermarkFromBlob } from '../core/watermarkEngine.ts';
 
 /**
  * Background Service Worker: 处理批量下载请求
- * 使用 chrome.downloads.download() —— 浏览器下载管理器自动携带 Cookie。
+ * 流程: fetch 原图 → OffscreenCanvas 去水印 → blob 下载
  * 点击扩展图标时，直接在 Gemini 页内开关面板（无 popup）。
  */
 
@@ -56,7 +57,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 
 async function downloadAll(
     images: ImageInfo[],
-    prefix: string
+    prefix: string,
 ): Promise<{ type: string; succeeded: number; failed: number }> {
     let succeeded = 0;
     let failed = 0;
@@ -67,42 +68,54 @@ async function downloadAll(
         const filename = `${prefix}_${String(i + 1).padStart(2, '0')}.png`;
 
         try {
+            // 1. Fetch 原图
+            const response = await fetch(image.fullSizeUrl);
+            if (!response.ok) {
+                throw new Error(`Fetch failed: ${response.status}`);
+            }
+            const originalBlob = await response.blob();
+
+            // 2. 去水印（OffscreenCanvas 在 Service Worker 中可用）
+            const cleanedBlob = await removeWatermarkFromBlob(originalBlob);
+
+            // 3. 创建 blob URL 并下载
+            const blobUrl = URL.createObjectURL(cleanedBlob);
+
             await new Promise<void>((resolve, reject) => {
                 chrome.downloads.download(
-                    {
-                        url: image.fullSizeUrl,
-                        filename,
-                        conflictAction: 'uniquify',
-                    },
+                    { url: blobUrl, filename, conflictAction: 'uniquify' },
                     (downloadId) => {
                         if (chrome.runtime.lastError) {
+                            URL.revokeObjectURL(blobUrl);
                             reject(new Error(chrome.runtime.lastError.message));
                             return;
                         }
 
-                        // 监听下载完成
                         const listener = (delta: chrome.downloads.DownloadDelta) => {
                             if (delta.id !== downloadId) return;
 
                             if (delta.state?.current === 'complete') {
                                 chrome.downloads.onChanged.removeListener(listener);
+                                URL.revokeObjectURL(blobUrl);
                                 resolve();
                             } else if (delta.state?.current === 'interrupted') {
                                 chrome.downloads.onChanged.removeListener(listener);
+                                URL.revokeObjectURL(blobUrl);
                                 reject(new Error(`Download interrupted: ${delta.error?.current}`));
                             }
                         };
                         chrome.downloads.onChanged.addListener(listener);
-                    }
+                    },
                 );
             });
+
             succeeded++;
         } catch (err) {
-            console.error(`Failed to download image ${i + 1}:`, err);
+            console.error(`Failed to process image ${i + 1}:`, err);
             failed++;
         }
 
-        // 广播下载进度给页内面板（content script）
+        // 广播下载进度给页内面板
         try {
             chrome.runtime.sendMessage({
                 type: 'DOWNLOAD_PROGRESS',

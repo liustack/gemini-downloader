@@ -13,7 +13,8 @@
         "downloads"
     ],
     "host_permissions": [
-        "https://gemini.google.com/*"
+        "https://gemini.google.com/*",
+        "https://lh3.googleusercontent.com/*"
     ],
     "action": {
         "default_title": "Gemini Batch Downloader",

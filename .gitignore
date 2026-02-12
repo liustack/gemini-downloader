@@ -63,3 +63,6 @@ __pycache__/
 # Chrome extension package/private key
 *.crx
 *.pem
+
+docs/plans
+docs/design
