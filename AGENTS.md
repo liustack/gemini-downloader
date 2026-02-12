@@ -50,9 +50,9 @@ The UI is rendered as an in-page Shadow DOM panel on Gemini pages, not in a popu
 - Keep the panel dark-themed and visually aligned with Gemini
 
 
-## 操作文档（docs/）
+## Operational Docs (docs/)
 
-1. 操作文档使用 front-matter 元数据（`summary`、`read_when`）。
-2. 新建操作文档前先运行 `pnpm docs:list` 查看现有文档索引。
-3. 开始编码前，检查 `read_when` 提示，按需阅读相关文档。
-4. 架构决策详见 `docs/download-interception-architecture.md`。
+1. All operational docs use front-matter metadata (`summary`, `read_when`).
+2. Before creating a new doc, run `pnpm docs:list` to review the existing index.
+3. Before starting work, check `read_when` hints and read relevant docs as needed.
+4. For architecture decisions, see `docs/download-interception-architecture.md`.

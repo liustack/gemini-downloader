@@ -1,26 +1,26 @@
 ---
-summary: '提交前全量检查：lint、格式化、测试一次跑完'
+summary: 'Pre-commit checks: run lint, format, and tests in one pass'
 read_when:
-  - 准备提交前做最终检查
-  - CI 失败后本地复现
+  - About to commit (final check)
+  - Reproducing CI failures locally
 ---
 
-# 提交前全量检查
+# Pre-Commit Checks
 
-依次运行，遇到错误立即修复：
+Run the following in order. Fix errors immediately before proceeding:
 
 ```bash
 # 1. Lint
 pnpm lint
 
-# 2. 格式化
+# 2. Format
 pnpm format-code
 
-# 3. 测试
+# 3. Test
 pnpm test
 
-# 4. 确认状态
+# 4. Verify status
 git status --short
 ```
 
-全部通过后可以提交。
+Only commit after all checks pass.

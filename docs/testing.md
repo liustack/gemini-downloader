@@ -1,36 +1,35 @@
 ---
-summary: '测试指南：Vitest 运行方式、路径约束、覆盖率'
+summary: 'Testing guide: Vitest commands, path constraints, coverage'
 read_when:
-  - 运行测试
-  - 编写测试
-  - 测试失败排障
+  - Running tests
+  - Writing tests
+  - Debugging test failures
 ---
 
-# 测试指南
+# Testing Guide
 
-## 关键约束
+## Key Constraint
 
-**必须从仓库根目录运行**，避免 `globalSetup` 与 alias 路径错位。
+**Always run from the repository root** to avoid `globalSetup` and alias path mismatches.
 
-## 命令
+## Commands
 
 ```bash
-# 全部测试
+# Run all tests
 pnpm test
 
-# 单个测试文件
+# Run a single test file
 pnpm exec vitest run <test-file-path>
-
 ```
 
-## 测试前检查
+## Before Running Tests
 
-- 确保相关代码的类型检查通过
-- 变更应附带可验证测试
+- Ensure type checking passes for the relevant code
+- Changes should include verifiable tests
 
-## 目录
+## Directories
 
-| 路径 | 用途 |
-|------|------|
-| `test/` | 测试主目录 |
-| `coverage/` | 覆盖率输出 |
+| Path | Purpose |
+|------|---------|
+| `test/` | Main test directory |
+| `coverage/` | Coverage output |

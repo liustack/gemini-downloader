@@ -1,44 +1,44 @@
 ---
-summary: 'PR 工作流：提交、推送、创建 Pull Request 的完整流程'
+summary: 'PR workflow: commit, push, and create Pull Request end-to-end'
 read_when:
-  - 创建 Pull Request
-  - 推送代码到远程
-  - 需要完成 commit-push-pr 全流程
+  - Creating a Pull Request
+  - Pushing code to remote
+  - Need the full commit-push-pr flow
 ---
 
-# PR 工作流
+# PR Workflow
 
-## 完整流程
+## Full Flow
 
-1. **提交**：按 `docs/commit.md` 规范完成提交
-2. **检查分支**：
+1. **Commit**: follow the conventions in `docs/commit.md`
+2. **Check branch**:
    ```bash
    git branch --show-current
    ```
-   如果在 main 分支，先创建功能分支：
+   If on main, create a feature branch first:
    ```bash
-   git checkout -b <合适的分支名>
+   git checkout -b <descriptive-branch-name>
    ```
-3. **推送**：
+3. **Push**:
    ```bash
    git push -u origin $(git branch --show-current)
    ```
-4. **创建 PR**：
+4. **Create PR**:
    ```bash
-   gh pr create --title "<简洁标题>" --body "$(cat <<'EOF'
+   gh pr create --title "<concise title>" --body "$(cat <<'EOF'
    ## Summary
-   <1-3 个要点>
+   <1-3 bullet points>
 
    ## Test plan
-   - [ ] <测试检查项>
+   - [ ] <test checklist item>
 
    🤖 Generated with [Claude Code](https://claude.com/claude-code)
    EOF
    )"
    ```
-5. 输出 PR URL
+5. Output the PR URL
 
-## PR 标题规范
+## PR Title Guidelines
 
-- 不超过 70 字符
-- 用 body 写详情，不要堆在标题里
+- Keep under 70 characters
+- Use the description/body for details, not the title
