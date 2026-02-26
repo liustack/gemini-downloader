@@ -1,4 +1,4 @@
-import type { ImageInfo } from '../../types';
+import type { ImageInfo, WatermarkMode } from '../../types';
 
 export type SupportedSite = 'gemini' | 'notebooklm';
 
@@ -8,7 +8,7 @@ export interface DownloadDispatcher {
     downloadFromUrl(
         imageUrl: string,
         filename: string,
-        options?: { removeWatermark?: boolean },
+        options?: { watermarkMode?: WatermarkMode },
     ): Promise<void>;
 }
 

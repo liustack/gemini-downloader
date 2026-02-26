@@ -3,6 +3,8 @@
  */
 
 import { removeWatermarkFromBlob } from '../core/watermarkEngine.ts';
+import { removeNotebookLmWatermarkFromBlob } from '../core/notebooklmWatermarkEngine.ts';
+import type { WatermarkMode } from '../types.ts';
 
 const GEMINI_HOME_URL = 'https://gemini.google.com/';
 const NOTEBOOKLM_HOME_URL = 'https://notebooklm.google.com/';
@@ -66,9 +68,32 @@ async function blobToDataUrl(blob: Blob): Promise<string> {
     });
 }
 
-async function processBlob(blob: Blob, removeWatermark: boolean): Promise<Blob> {
-    if (!removeWatermark) {
+function resolveWatermarkMode(
+    watermarkMode: unknown,
+    removeWatermarkLegacy?: unknown,
+): WatermarkMode {
+    if (
+        watermarkMode === 'none' ||
+        watermarkMode === 'gemini' ||
+        watermarkMode === 'notebooklm'
+    ) {
+        return watermarkMode;
+    }
+
+    if (typeof removeWatermarkLegacy === 'boolean') {
+        return removeWatermarkLegacy ? 'gemini' : 'none';
+    }
+
+    return 'gemini';
+}
+
+async function processBlob(blob: Blob, watermarkMode: WatermarkMode): Promise<Blob> {
+    if (watermarkMode === 'none') {
         return blob;
+    }
+
+    if (watermarkMode === 'notebooklm') {
+        return removeNotebookLmWatermarkFromBlob(blob);
     }
 
     return removeWatermarkFromBlob(blob);
@@ -113,18 +138,18 @@ async function saveBlobAsDownload(blob: Blob, filename: string): Promise<{ succe
 async function processAndDownloadDataUrl(
     dataUrl: string,
     filename: string,
-    removeWatermark: boolean,
+    watermarkMode: WatermarkMode,
 ): Promise<{ success: boolean; error?: string }> {
     const response = await fetch(dataUrl);
     const sourceBlob = await response.blob();
-    const finalBlob = await processBlob(sourceBlob, removeWatermark);
+    const finalBlob = await processBlob(sourceBlob, watermarkMode);
     return saveBlobAsDownload(finalBlob, filename);
 }
 
 async function processAndDownloadImageUrl(
     imageUrl: string,
     filename: string,
-    removeWatermark: boolean,
+    watermarkMode: WatermarkMode,
 ): Promise<{ success: boolean; error?: string }> {
     const response = await fetch(imageUrl, { credentials: 'include' });
     if (!response.ok) {
@@ -132,7 +157,7 @@ async function processAndDownloadImageUrl(
     }
 
     const sourceBlob = await response.blob();
-    const finalBlob = await processBlob(sourceBlob, removeWatermark);
+    const finalBlob = await processBlob(sourceBlob, watermarkMode);
     return saveBlobAsDownload(finalBlob, filename);
 }
 
@@ -149,7 +174,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
             filename: string;
         };
 
-        processAndDownloadDataUrl(dataUrl, filename, true)
+        processAndDownloadDataUrl(dataUrl, filename, 'gemini')
             .then(sendResponse)
             .catch((err) => sendResponse({ success: false, error: String(err) }));
 
@@ -157,14 +182,17 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     }
 
     if (message.type === 'DOWNLOAD_IMAGE_URL') {
-        const { imageUrl, filename, removeWatermark } = message as {
+        const { imageUrl, filename, watermarkMode, removeWatermark } = message as {
             type: 'DOWNLOAD_IMAGE_URL';
             imageUrl: string;
             filename: string;
+            watermarkMode?: WatermarkMode;
             removeWatermark?: boolean;
         };
 
-        processAndDownloadImageUrl(imageUrl, filename, removeWatermark ?? true)
+        const mode = resolveWatermarkMode(watermarkMode, removeWatermark);
+
+        processAndDownloadImageUrl(imageUrl, filename, mode)
             .then(sendResponse)
             .catch((err) => sendResponse({ success: false, error: String(err) }));
 

@@ -25,9 +25,9 @@ Notes:
 - Sends `TOGGLE_PANEL` / `OPEN_PANEL`
 - Handles:
   - `DOWNLOAD_IMAGE` (dataUrl)
-  - `DOWNLOAD_IMAGE_URL` (imageUrl)
+  - `DOWNLOAD_IMAGE_URL` (imageUrl + watermarkMode)
   - `SUPPRESS_DOWNLOADS`
-- Applies optional watermark removal before save
+- Applies per-mode watermark cleanup before save (`gemini` / `notebooklm` / `none`)
 - Suppresses duplicate native `blob:` downloads during Gemini batch flow
 
 ### 2.2 `src/content/index.ts`
@@ -68,7 +68,7 @@ Notes:
 2. For each selected item: open artifact viewer
 3. Read viewer image URL (`/notebooklm/` or `/rd-notebooklm/`)
 4. Send `DOWNLOAD_IMAGE_URL` to background
-5. Background fetches and saves file (no watermark removal)
+5. Background runs NotebookLM local-difference mask cleanup, with full-region column-fill fallback, then saves file
 
 ## 4. Reliability Strategy
 

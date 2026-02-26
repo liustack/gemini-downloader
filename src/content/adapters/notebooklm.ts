@@ -225,7 +225,9 @@ export function createNotebookLmAdapter(): SiteAdapter {
                     }
 
                     const imageUrl = await openArtifactAndCaptureImageUrl(button);
-                    await dispatcher.downloadFromUrl(imageUrl, filename, { removeWatermark: false });
+                    await dispatcher.downloadFromUrl(imageUrl, filename, {
+                        watermarkMode: 'notebooklm',
+                    });
                     return;
                 } catch (error) {
                     if (attempt >= 2) {

@@ -16,6 +16,7 @@
 - 站点适配器架构（`Gemini` / `NotebookLM` 分文件实现）
 - Gemini：模拟点击原生下载 + fetch 拦截获取原图
 - NotebookLM：打开信息图 Artifact 后抓取 viewer 图片 URL 批量下载
+- NotebookLM：局部差分掩码识别 + 逐列采样兜底的水印清理
 - 批次时间戳命名，避免文件名冲突（`prefix_YYYYMMDD_HHmmss_N.png`）
 - 长页面稳定性增强：
   - 扫描前/下载前滚动预热懒加载
@@ -45,7 +46,7 @@
 - Action 点击 -> Background -> Content Script：`TOGGLE_PANEL` / `OPEN_PANEL`
 - Content Script -> Background：
   - `DOWNLOAD_IMAGE`（dataUrl + filename）
-  - `DOWNLOAD_IMAGE_URL`（imageUrl + filename + removeWatermark）
+  - `DOWNLOAD_IMAGE_URL`（imageUrl + filename + watermarkMode）
   - `SUPPRESS_DOWNLOADS`（Gemini 原生 blob 下载抑制开关）
 - Main World -> Content Script：
   - `GBD_IMAGE_CAPTURED`（带 `captureId`）
@@ -74,6 +75,7 @@ src/
       notebooklm.ts                    # NotebookLM 信息图逻辑
   core/
     watermarkEngine.ts                 # Gemini 去水印
+    notebooklmWatermarkEngine.ts       # NotebookLM 去水印
     alphaMap.ts
     blendModes.ts
   types.ts                             # 共享消息/数据类型

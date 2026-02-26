@@ -23,7 +23,7 @@ The UI is rendered as an in-page Shadow DOM panel, not in a popup page.
 4. NotebookLM batch download:
    - detect Infographic artifact entries
    - open artifact viewer, capture image URL
-   - send URL to background for direct save (without watermark removal)
+   - send URL to background for NotebookLM-specific watermark cleanup + save
 5. Reliability strategy:
    - lazy-load preloading before scan/download
    - retry with scroll-container sweep for virtualized pages
@@ -54,7 +54,7 @@ The UI is rendered as an in-page Shadow DOM panel, not in a popup page.
 - Action Click -> Background -> Content Script (`TOGGLE_PANEL` / `OPEN_PANEL`)
 - Content Script -> Background:
   - `DOWNLOAD_IMAGE` (dataUrl + filename)
-  - `DOWNLOAD_IMAGE_URL` (imageUrl + filename + removeWatermark)
+  - `DOWNLOAD_IMAGE_URL` (imageUrl + filename + watermarkMode)
   - `SUPPRESS_DOWNLOADS` on/off
 - Main World -> Content Script:
   - `GBD_IMAGE_CAPTURED` (includes `captureId`)
@@ -66,7 +66,8 @@ The UI is rendered as an in-page Shadow DOM panel, not in a popup page.
 - Gemini original capture is tied to native click flow; extension piggybacks and intercepts final image response.
 - Gemini capture is matched by `captureId` to prevent late-response mismatch after timeout.
 - NotebookLM infographic flow uses artifact button detection + viewer image URL extraction (`/notebooklm/` or `/rd-notebooklm/`).
-- Background watermark removal is optional per message (`removeWatermark` flag).
+- NotebookLM watermark cleanup uses local-difference masking with full-region column-fill fallback.
+- Background watermark removal mode is controlled per message (`watermarkMode`).
 - During Gemini batch, `chrome.downloads.onCreated` cancels duplicate `blob:` downloads not initiated by extension.
 
 ## Development Workflow

@@ -1,4 +1,4 @@
-import type { ImageInfo } from '../types';
+import type { ImageInfo, WatermarkMode } from '../types';
 import { getAdapterForLocation } from './adapters';
 import type { DownloadDispatcher } from './adapters/types';
 
@@ -101,13 +101,13 @@ async function downloadFromDataUrl(dataUrl: string, filename: string): Promise<v
 async function downloadFromUrl(
     imageUrl: string,
     filename: string,
-    options?: { removeWatermark?: boolean },
+    options?: { watermarkMode?: WatermarkMode },
 ): Promise<void> {
     const result = await sendRuntimeMessage<{ success: boolean; error?: string }>({
         type: 'DOWNLOAD_IMAGE_URL',
         imageUrl,
         filename,
-        removeWatermark: options?.removeWatermark,
+        watermarkMode: options?.watermarkMode ?? 'gemini',
     }, 120000);
 
     if (!result?.success) {

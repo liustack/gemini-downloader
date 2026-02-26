@@ -16,6 +16,7 @@ This project is published for personal learning purposes only and must not be us
 - Site adapter architecture (`Gemini` / `NotebookLM` in separate files)
 - Gemini original-image download via native button click + fetch interception
 - NotebookLM Infographic batch download via artifact viewer image URL capture
+- NotebookLM watermark cleanup via local-difference mask + column-sampling fallback
 - Batch timestamp filenames (`prefix_YYYYMMDD_HHmmss_N.png`)
 - Reliability improvements for long pages / lazy loading:
   - Scroll preloading before scan and download
@@ -45,7 +46,7 @@ This project is published for personal learning purposes only and must not be us
 - Action click -> Background -> Content Script: `TOGGLE_PANEL` / `OPEN_PANEL`
 - Content Script -> Background:
   - `DOWNLOAD_IMAGE` (dataUrl + filename)
-  - `DOWNLOAD_IMAGE_URL` (imageUrl + filename + removeWatermark)
+  - `DOWNLOAD_IMAGE_URL` (imageUrl + filename + watermarkMode)
   - `SUPPRESS_DOWNLOADS` (Gemini native blob suppression on/off)
 - Main World -> Content Script:
   - `GBD_IMAGE_CAPTURED` (includes `captureId`)
@@ -74,6 +75,7 @@ src/
       notebooklm.ts                    # NotebookLM infographic logic
   core/
     watermarkEngine.ts                 # Gemini watermark removal
+    notebooklmWatermarkEngine.ts       # NotebookLM watermark cleanup
     alphaMap.ts
     blendModes.ts
   types.ts                             # Shared message/data types

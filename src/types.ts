@@ -7,6 +7,7 @@ export interface PreviewRect {
 }
 
 export type SourceSite = 'gemini' | 'notebooklm';
+export type WatermarkMode = 'none' | 'gemini' | 'notebooklm';
 
 export interface ImageInfo {
     id: number;
@@ -27,6 +28,8 @@ export type MessageType =
           type: 'DOWNLOAD_IMAGE_URL';
           imageUrl: string;
           filename: string;
+          watermarkMode?: WatermarkMode;
+          // Backward compatibility with older callers.
           removeWatermark?: boolean;
       }
     | { type: 'SUPPRESS_DOWNLOADS'; suppress: boolean };
