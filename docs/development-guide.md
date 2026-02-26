@@ -1,4 +1,4 @@
-# Gemini Batch Image Downloader Development Guide
+# banana-downloader Development Guide
 
 ## 1. Current Architecture
 
@@ -83,7 +83,7 @@ pnpm build
 ### 5.2 No images detected
 
 - Open Gemini page console and inspect scan logs:
-  - `[Gemini Batch Downloader] Scanned X <img>, matched Y Gemini images`
+  - `[banana-downloader] Scanned X <img>, matched Y Gemini images`
 - Scroll the page to trigger lazy loading, then retry
 
 ### 5.3 Download failures

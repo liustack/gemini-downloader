@@ -1,8 +1,8 @@
-# Gemini Image Downloader
+# banana-downloader
 
-中文文档 [README.zh-CN.md](README.zh-CN.md).
+English documentation. For Chinese users, see [README.zh-CN.md](README.zh-CN.md).
 
-A Chrome extension for Google Gemini that lets you batch-download full-resolution generated images from the current conversation — with automatic watermark removal.
+A Chrome extension for Google Gemini that opens an in-page panel when you click the extension icon, then lets you batch-download full-resolution generated images from the current conversation — with automatic watermark removal.
 
 ## Notice
 

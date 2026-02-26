@@ -1,4 +1,4 @@
-# Gemini 批量图片下载器
+# banana-downloader
 
 中文文档。英文文档请见 [README.md](README.md)。
 

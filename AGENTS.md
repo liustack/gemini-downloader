@@ -1,4 +1,4 @@
-# Gemini Batch Image Downloader Project Context
+# banana-downloader Project Context
 
 ## Project Overview
 This is a Chrome extension for batch-downloading full-resolution images generated in Google Gemini conversations.
